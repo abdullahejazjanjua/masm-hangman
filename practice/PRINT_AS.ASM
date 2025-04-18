@@ -3,7 +3,6 @@
 .data
         str1 db "ASCII Table: ", 0Ah, "$"
 .code
-main proc
         mov ax, @data
         mov ds, ax
 
@@ -11,18 +10,23 @@ main proc
         mov dx, offset str1
         INT 21h
 
-        mov cx, 95
-        mov al, 32
+        mov cx, 26
+        mov al, 97
 
         COUNT:
+                push ax ; Save ax (al)
+
                 mov dl, al
                 mov ah, 02h
                 INT 21h
+                
+                
 
-               ; mov dl, 'A'
-                ;mov ah, 02h
-               ; INT 21h
-               
+                mov dl, ' '
+                mov ah, 02h ; Returns ' ' into al overwriting the ascii code
+                INT 21h
+
+                pop ax ; Restore ax (al) 
 
                 add al, 1
       loop COUNT
@@ -30,6 +34,4 @@ main proc
 
         mov ah, 4ch
         INT 21h
-
-main endp
-end main
+end
