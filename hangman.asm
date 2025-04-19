@@ -1,0 +1,228 @@
+display_str MACRO str
+
+    
+    mov ah, 09h
+    mov dx, offset nl
+    INT 21h
+
+    
+    mov ah, 09h
+    mov dx, offset str
+    INT 21h
+
+    mov ah, 09h
+    mov dx, offset nl
+    INT 21h
+
+
+ENDM
+
+delay MACRO 
+
+    mov cx, 10000
+    RUN:
+    LOOP RUN
+ENDM
+
+get_len MACRO str
+
+    mov si, offset str
+    mov bl, len_wrd
+    get:
+        mov al, [si]
+        cmp al, "$"
+        je got_it
+        add len_wrd, 1
+        inc si
+        jmp get
+        
+        got_it:
+ENDM
+
+add_null MACRO
+    
+    mov si, offset guesses_wrd
+    mov dh, 0
+    mov dl, len_wrd
+    mov cx, dl
+
+    add_end_char:
+        inc si
+    LOOP add_end_char
+
+    mov BYTE PTR [si], '$'
+ENDM
+
+print_guess_word MACRO
+
+    display_str nl
+
+    mov si, offset guesses_wrd
+
+    print_loop:
+        mov dl, [si]
+
+        cmp dl, '$'
+        je completed
+        mov ah, 02h
+        INT 21h
+
+        inc si
+        jmp print_loop
+    completed:
+        display_str nl
+
+ENDM
+
+
+.model small
+.stack 100h
+.data
+    str1 db "aqsa", "$"
+    enter db "Enter a letter: ", "$"
+    nl db 0Ah, "$"
+    guesses_wrd db 10 dup("-")
+    not_str db "Wrong guess! You lost a point", "$"
+    yes_str db "Thats right! You got it", "$"
+    lost db "You lost!! Another game?", "$"
+    len_wrd db 0
+    entered_words db 26 dup("-"), "$"
+    bf db "Change entered_words size", "$"
+.code
+    mov ax, @data
+    mov ds, ax
+    
+    get_len str1
+    add_null
+    mov bx, 10
+
+
+    gameloop:
+
+        try_again:
+            display_str enter
+            ;Take user input
+            mov ah, 01h
+            int 21h
+            push ax 
+        
+            call is_entered
+            cmp al, 1 ;Duplicate was found
+            je try_again
+            cmp al, 2
+            je buffer_full 
+            jmp continue
+    
+        buffer_full:
+            display_str bf
+
+        continue:
+            pop ax
+
+            call compare_and_store_word
+            push dx ;Below uses dx also. So I have save dx
+            print_guess_word 
+            pop dx
+
+            cmp dx , 1
+            je gameloop
+            jne WRONG
+    WRONG:
+        sub bx, 1
+        cmp bx, 0
+        je game_over
+        display_str not_str
+        jmp gameloop
+
+    game_over:
+        mov al, len_wrd
+        cmp al, 0
+        je game_over_actually
+        display_str lost
+        game_over_actually:
+            mov ah, 04ch
+            INT 21h
+
+compare_and_store_word PROC 
+    xor dx, dx
+    display_str str1
+    
+    ; Get index of word
+    mov si, offset str1
+    mov di, offset guesses_wrd
+
+
+    COMPARE:
+        ;compare entered letter with letters in chosen word
+        mov cl, [si]
+        cmp al, cl
+        je EQUAL
+
+        RETURN:
+            inc si
+            inc di
+            cmp cl, "$"
+            je finish
+            
+            jmp COMPARE
+    EQUAL:
+        display_str yes_str
+        mov [di], al
+        mov dx, 1 ;return true
+        call end_game
+
+        jmp RETURN
+        finish:
+            RET
+compare_and_store_word ENDP
+
+end_game PROC
+    sub len_wrd, 1
+    cmp len_wrd, 0
+    je game_over
+
+    RET
+end_game ENDP
+
+is_entered PROC
+    mov si, offset entered_words
+
+    search_loop:
+        mov cl, [si]
+        cmp cl, al
+        je duplicate_found
+        cmp cl, '$'
+        je not_found
+        inc si
+        jmp search_loop
+
+    duplicate_found:
+        mov al, 1      ; flag = 1 means duplicate found
+        ret
+
+    not_found:
+        mov si, offset entered_words
+
+    find_empty:
+        mov cl, [si]
+        cmp cl, '-'
+        je store_letter
+        cmp cl, '$'
+        je buffer_full
+        inc si
+        jmp find_empty
+
+    store_letter:
+        mov [si], al
+        mov al, 0      ; flag = 0 means stored successfully
+        ret
+
+    buffer_full:
+        mov al, 2      ; flag = 2 means buffer full
+        ret
+
+is_entered ENDP
+
+
+
+END
