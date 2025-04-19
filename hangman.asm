@@ -88,6 +88,8 @@ ENDM
     len_wrd db 0
     entered_words db 26 dup("-"), "$"
     bf db "Change entered_words size", "$"
+    exp db "!!!!!!!!!!!!!!!!!!!!!!!!!!!", "$"
+    won db "Congrats! You won the game", "$"
 .code
     mov ax, @data
     mov ds, ax
@@ -104,16 +106,16 @@ ENDM
             ;Take user input
             mov ah, 01h
             int 21h
-            push ax 
+            push ax ;Store al as is_entered returns values in it
         
             call is_entered
             cmp al, 1 ;Duplicate was found
             je try_again
             cmp al, 2
-            je buffer_full 
+            je warning 
             jmp continue
     
-        buffer_full:
+        warning:
             display_str bf
 
         continue:
@@ -125,20 +127,34 @@ ENDM
             pop dx
 
             cmp dx , 1
-            je gameloop
+            jne skip_gameloop
+            jmp gameloop
+            skip_gameloop:
+    
             jne WRONG
     WRONG:
-        sub bx, 1
+        sub bx, 1 ;Decrement this to check if user found all words
         cmp bx, 0
-        je game_over
+        je game_end ;if 0 then game over
         display_str not_str
         jmp gameloop
 
     game_over:
         mov al, len_wrd
         cmp al, 0
+        je game_win
+        cmp bx, 0
         je game_over_actually
-        display_str lost
+        
+
+        game_win:
+            display_str exp
+            display_str won
+            display_str exp
+            jmp game_over_actually
+
+        game_end:
+            display_str lost
         game_over_actually:
             mov ah, 04ch
             INT 21h
@@ -179,7 +195,10 @@ compare_and_store_word ENDP
 end_game PROC
     sub len_wrd, 1
     cmp len_wrd, 0
-    je game_over
+    jne skip
+    jmp game_over
+        skip:
+
 
     RET
 end_game ENDP
