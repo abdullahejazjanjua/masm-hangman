@@ -78,7 +78,7 @@ ENDM
 .model small
 .stack 100h
 .data
-    str1 db "aqsa", "$"
+    str1 db "ahmad", "$"
     enter db "Enter a letter: ", "$"
     nl db 0Ah, "$"
     guesses_wrd db 10 dup("-")
@@ -241,7 +241,5 @@ is_entered PROC
         ret
 
 is_entered ENDP
-
-
 
 END
