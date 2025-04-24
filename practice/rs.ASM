@@ -13,7 +13,6 @@
         str10 db "aa", "$"
         strings dw offset str1, offset str2, offset str3, offset str4, offset str5, offset str6, offset str7, offset str8, offset str9, offset str10
         ; 0, 2, 4, 6, 8, 10, 12, 14, 16, 18
-        num_strs equ 10
         rand_num db 0
 .code
         mov ax, @data

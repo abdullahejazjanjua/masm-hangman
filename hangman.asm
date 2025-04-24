@@ -78,7 +78,8 @@ ENDM
 .model small
 .stack 100h
 .data
-    str1 db "ahmad", "$"
+    str1 db "Ahamd", "$"
+    selected db 10 dup('$')
     enter db "Enter a letter: ", "$"
     nl db 0Ah, "$"
     guesses_wrd db 10 dup("-")
@@ -90,11 +91,19 @@ ENDM
     bf db "Change entered_words size", "$"
     exp db "!!!!!!!!!!!!!!!!!!!!!!!!!!!", "$"
     won db "Congrats! You won the game", "$"
+
+    words    db "APPLE", 0, "MANGO", 0, "GRAPE", 0, "BANANA", 0, "CHERRY", 0
+    wordPtrs dw offset words, offset words+6, offset words+12, offset words+18, offset words+25
+
 .code
     mov ax, @data
     mov ds, ax
     
-    get_len str1
+    call get_string 
+
+    display_str selected
+
+    get_len selected
     add_null
     mov bx, 10
 
@@ -161,10 +170,10 @@ ENDM
 
 compare_and_store_word PROC 
     xor dx, dx
-    display_str str1
+    display_str selected
     
     ; Get index of word
-    mov si, offset str1
+    mov si, offset selected
     mov di, offset guesses_wrd
 
 
@@ -241,5 +250,41 @@ is_entered PROC
         ret
 
 is_entered ENDP
+
+
+get_string PROC
+    ; Generate random number between 0-4
+    mov ah, 00h
+    int 1Ah                 ; CX:DX has the tick count
+    mov al, dl              ; Use lower byte of ticks for randomness
+    and al, 00000111b       ; Limit to 0-7
+    cmp al, 04              ; Limit to 0-4 (5 words)
+    jbe ok_index
+    mov al, 03              ; fallback to 3
+    
+ok_index: 
+    mov bl, al
+    xor bh, bh              ; Clear upper byte to use BX as index
+    shl bx, 1               ; Multiply by 2 (for word offset)
+    mov si, wordPtrs[bx]    ; Get pointer from array using index
+
+    ; Copy word to selected
+    lea di, selected
+    
+copy_loop:
+    mov al, [si]            ; Get character from source
+    cmp al, 0               ; Check for null terminator
+    je done_copy
+    mov [di], al            ; Store character in destination
+    inc si
+    inc di
+    jmp copy_loop
+
+done_copy:
+    mov byte ptr [di], '$'  ; Add string terminator for DOS
+    RET
+get_string ENDP
+
+ 
 
 END
