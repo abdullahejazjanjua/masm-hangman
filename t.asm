@@ -75,10 +75,24 @@ print_guess_word MACRO
 ENDM
 
 
+print_var MACRO var
+
+    mov dl, var
+    add dl, 48
+    mov ah, 02h
+    INT 21h
+
+ENDM
+
+cls MACRO
+    mov ah, 0      ; Function 0 - set video mode
+    mov al, 3      ; Mode 3 - 80x25 text mode
+    int 10h        ; BIOS video interrupt
+ENDM
+
 .model small
 .stack 100h
 .data
-    str1 db "Ahamd", "$"
     selected db 10 dup('$')
     enter db "Enter a letter: ", "$"
     nl db 0Ah, "$"
@@ -93,23 +107,136 @@ ENDM
     won db "Congrats! You won the game", "$"
     words    db "APPLE", 0, "MANGO", 0, "GRAPE", 0, "BANANA", 0, "CHERRY", 0
     wordPtrs dw offset words, offset words+6, offset words+12, offset words+18, offset words+25
+    chances db 10
+    score db 0
+    left db "Chances left: ", "$"
+    scr db "Score: ", "$"
+    
+    ; ASCII Art for hangman stages
+    stage0 db "  +---+", 0Ah
+           db "  |   |", 0Ah
+           db "      |", 0Ah
+           db "      |", 0Ah
+           db "      |", 0Ah
+           db "      |", 0Ah
+           db "=========", "$"
+           
+    stage1 db "  +---+", 0Ah
+           db "  |   |", 0Ah
+           db "  O   |", 0Ah
+           db "      |", 0Ah
+           db "      |", 0Ah
+           db "      |", 0Ah
+           db "=========", "$"
+           
+    stage2 db "  +---+", 0Ah
+           db "  |   |", 0Ah
+           db "  O   |", 0Ah
+           db "  |   |", 0Ah
+           db "      |", 0Ah
+           db "      |", 0Ah
+           db "=========", "$"
+           
+    stage3 db "  +---+", 0Ah
+           db "  |   |", 0Ah
+           db "  O   |", 0Ah
+           db " /|   |", 0Ah
+           db "      |", 0Ah
+           db "      |", 0Ah
+           db "=========", "$"
+           
+    stage4 db "  +---+", 0Ah
+           db "  |   |", 0Ah
+           db "  O   |", 0Ah
+           db " /|\  |", 0Ah
+           db "      |", 0Ah
+           db "      |", 0Ah
+           db "=========", "$"
+           
+    stage5 db "  +---+", 0Ah
+           db "  |   |", 0Ah
+           db "  O   |", 0Ah
+           db " /|\  |", 0Ah
+           db " /    |", 0Ah
+           db "      |", 0Ah
+           db "=========", "$"
+           
+    stage6 db "  +---+", 0Ah
+           db "  |   |", 0Ah
+           db "  O   |", 0Ah
+           db " /|\  |", 0Ah
+           db " / \  |", 0Ah
+           db "      |", 0Ah
+           db "=========", "$"
+           
+    TIL db "HANGMAN GAME", "$"
+    welcome db "Welcome to Hangman! Try to guess the word.", "$"
 
 .code
     mov ax, @data
     mov ds, ax
     
+    cls 
+    display_str TIL
+    display_str welcome
+    
     call get_string 
 
-    display_str selected
+    ;display_str selected
 
     get_len selected
     add_null
-    mov bx, 10
+    mov bx, chances
 
 
     gameloop:
 
         try_again:
+            
+            ; Display ASCII Art
+            cmp chances, 10
+            je show_stage0
+            cmp chances, 8
+            jae show_stage1
+            cmp chances, 6
+            jae show_stage2
+            cmp chances, 5
+            je show_stage3
+            cmp chances, 4
+            je show_stage4
+            cmp chances, 2
+            jae show_stage5
+            jmp show_stage6
+            
+            show_stage0:
+                display_str stage0
+                jmp after_art
+            show_stage1:
+                display_str stage1
+                jmp after_art
+            show_stage2:
+                display_str stage2
+                jmp after_art
+            show_stage3:
+                display_str stage3
+                jmp after_art
+            show_stage4:
+                display_str stage4
+                jmp after_art
+            show_stage5:
+                display_str stage5
+                jmp after_art
+            show_stage6:
+                display_str stage6
+                
+            after_art:
+            
+            display_str left
+            print_var chances
+
+            display_str scr
+            print_var score
+
             display_str enter
             ;Take user input
             mov ah, 01h
@@ -118,7 +245,9 @@ ENDM
         
             call is_entered
             cmp al, 1 ;Duplicate was found
-            je try_again
+            jne ll
+            jmp try_again
+            ll:
             cmp al, 2
             je warning 
             jmp continue
@@ -141,13 +270,15 @@ ENDM
     
             jne WRONG
     WRONG:
-        sub bx, 1 ;Decrement this to check if user found all words
+        sub bx, 1 ;Mistakes
+        mov chances, bx
         cmp bx, 0
         je game_end ;if 0 then game over
         display_str not_str
         jmp gameloop
 
     game_over:
+        cls ; Clear screen before showing game result
         mov al, len_wrd
         cmp al, 0
         je game_win
@@ -162,6 +293,7 @@ ENDM
             jmp game_over_actually
 
         game_end:
+            display_str stage6 ; Show complete hangman
             display_str lost
         game_over_actually:
             mov ah, 04ch
@@ -169,7 +301,7 @@ ENDM
 
 compare_and_store_word PROC 
     xor dx, dx
-    display_str selected
+    ;display_str selected
     
     ; Get index of word
     mov si, offset selected
@@ -201,11 +333,13 @@ compare_and_store_word PROC
 compare_and_store_word ENDP
 
 end_game PROC
+
+    add score, 2
     sub len_wrd, 1
     cmp len_wrd, 0
     jne skip
     jmp game_over
-        skip:
+    skip:
 
 
     RET
@@ -252,35 +386,36 @@ is_entered ENDP
 
 
 get_string PROC
-    ; Generate random number between 0-4
+    ; Get clk ticks
     mov ah, 00h
-    int 1Ah                 ; CX:DX has the tick count
-    mov al, dl              ; Use lower byte of ticks for randomness
-    and al, 00000111b       ; Limit to 0-7
-    cmp al, 04              ; Limit to 0-4 (5 words)
-    jbe ok_index
-    mov al, 03              ; fallback to 3
+    int 1Ah      
+
+    mov al, dl              
+    and al, 00000111b       ; Mask to have only 7 possibilies
+    cmp al, 04              
+    jbe ok_index ;If selected index < 4
+    mov al, 03              ; Fallback
     
 ok_index: 
     mov bl, al
-    xor bh, bh              ; Clear upper byte to use BX as index
-    shl bx, 1               ; Multiply by 2 (for word offset)
-    mov si, wordPtrs[bx]    ; Get pointer from array using index
+    xor bh, bh              
+    shl bx, 1              ; Mul by 2 to get actual offset 
+    mov si, wordPtrs[bx]   ; Get offset of the chosen word
 
-    ; Copy word to selected
-    lea di, selected
-    
+    lea di, selected ; Get address of selected
+
+;Copy from array to selected
 copy_loop:
-    mov al, [si]            ; Get character from source
-    cmp al, 0               ; Check for null terminator
+    mov al, [si]            
+    cmp al, 0              
     je done_copy
-    mov [di], al            ; Store character in destination
+    mov [di], al          
     inc si
     inc di
     jmp copy_loop
 
 done_copy:
-    mov byte ptr [di], '$'  ; Add string terminator for DOS
+    mov byte ptr [di], '$'  ; Null terminate the string
     RET
 get_string ENDP
 
