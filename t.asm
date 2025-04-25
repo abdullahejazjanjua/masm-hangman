@@ -85,9 +85,9 @@ print_var MACRO var
 ENDM
 
 cls MACRO
-    mov ah, 0      ; Function 0 - set video mode
-    mov al, 3      ; Mode 3 - 80x25 text mode
-    int 10h        ; BIOS video interrupt
+    mov ah, 0      
+    mov al, 3      
+    int 10h       
 ENDM
 
 .model small
