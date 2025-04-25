@@ -67,6 +67,8 @@ print_guess_word MACRO
         mov ah, 02h
         INT 21h
 
+        ; display_str space
+
         inc si
         jmp print_loop
     completed:
@@ -93,6 +95,7 @@ ENDM
 .model small
 .stack 100h
 .data
+    space db " ", "$"
     selected db 10 dup('$')
     enter db "Enter a letter: ", "$"
     nl db 0Ah, "$"
@@ -105,12 +108,16 @@ ENDM
     bf db "Change entered_words size", "$"
     exp db "!!!!!!!!!!!!!!!!!!!!!!!!!!!", "$"
     won db "Congrats! You won the game", "$"
-    words    db "APPLE", 0, "MANGO", 0, "GRAPE", 0, "BANANA", 0, "CHERRY", 0
+    words    db "apple", 0, "mango", 0, "grape", 0, "banana", 0, "cherry", 0
     wordPtrs dw offset words, offset words+6, offset words+12, offset words+18, offset words+25
     chances db 10
     score db 0
     left db "Chances left: ", "$"
     scr db "Score: ", "$"
+    chars db "Here's a Hint for you: ", "$"
+
+    choose_difficulty db "What do you want you difficulty to be? { e(Easy)\{m(medium)\h(hard) }", "$"
+    rim db "Focus! e OR m OR h", "$"
     
     ; ASCII Art for hangman stages
     stage0 db "  +---+", 0Ah
@@ -172,6 +179,18 @@ ENDM
     TIL db "HANGMAN GAME", "$"
     welcome db "Welcome to Hangman! Try to guess the word.", "$"
 
+    easyWords db "apple",0, "cat",0, "india",0, "dog",0
+    easyPtrs  dw offset easyWords, offset easyWords+6, offset easyWords+10, offset easyWords+16
+
+
+    mediumWords db "banana",0, "tiger",0, "france",0, "lion",0
+    mediumPtrs dw offset mediumWords, offset mediumWords+7, offset mediumWords+13, offset mediumWords+20
+
+
+    hardWords db "cherry",0, "elephant",0, "australia",0, "rhinoceros",0
+    hardPtrs dw offset hardWords, offset hardWords+7, offset hardWords+16, offset hardWords+26
+
+
 .code
     mov ax, @data
     mov ds, ax
@@ -179,14 +198,18 @@ ENDM
     cls 
     display_str TIL
     display_str welcome
+    cls
     
     call get_string 
 
-    ;display_str selected
-
     get_len selected
     add_null
+
+    display_str chars
+    display_str guesses_wrd
+
     mov bx, chances
+    
 
 
     gameloop:
@@ -386,10 +409,18 @@ is_entered ENDP
 
 
 get_string PROC
+    
+    ag:
+    display_str choose_difficulty
+    mov ah, 01h
+    INT 21h
+
+    mov ah, 0
+    push ax
+
     ; Get clk ticks
     mov ah, 00h
-    int 1Ah      
-
+    int 1Ah   
     mov al, dl              
     and al, 00000111b       ; Mask to have only 7 possibilies
     cmp al, 04              
@@ -399,9 +430,27 @@ get_string PROC
 ok_index: 
     mov bl, al
     xor bh, bh              
-    shl bx, 1              ; Mul by 2 to get actual offset 
-    mov si, wordPtrs[bx]   ; Get offset of the chosen word
+    shl bx, 1 ; Mul by 2 to get actual offset 
 
+    pop ax
+    cmp al, 'e'
+    je Easy
+    cmp al, 'm'
+    je MED
+    cmp al, 'h'
+    je HARD
+    display_str rim
+    jmp ag
+
+    EASY: 
+        mov si, easyPtrs[bx]   ; Get offset of the chosen word
+        jmp CONT
+    MED:
+        mov si, mediumPtrs[bx]   ; Get offset of the chosen word
+        jmp CONT
+    HARD: 
+        mov si, hardPtrs[bx]   ; Get offset of the chosen word
+    CONT: 
     lea di, selected ; Get address of selected
 
 ;Copy from array to selected
