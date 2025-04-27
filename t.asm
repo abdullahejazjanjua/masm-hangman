@@ -78,13 +78,39 @@ ENDM
 
 
 print_var MACRO var
+    LOCAL skip_tens
+    push ax
+    push bx
+    push dx
 
-    mov dl, var
-    add dl, 48
-    mov ah, 02h
-    INT 21h
+    mov al, var
+    mov ah, 0
 
+    mov bl, 10
+    div bl  ; AL = quotient (tens), AH = remainder (ones) 
+
+    mov bl, ah ;save ah
+
+    cmp al, 0
+    je skip_tens
+
+    add al, 48    
+    mov dl, al
+    mov ah, 02h    
+    int 21h
+
+    skip_tens:
+
+        add bl, 48
+        mov dl, bl
+        mov ah, 02h
+        int 21h
+
+    pop dx
+    pop bx
+    pop ax
 ENDM
+
 
 cls MACRO
     mov ah, 0      
@@ -108,8 +134,8 @@ ENDM
     bf db "Change entered_words size", "$"
     exp db "!!!!!!!!!!!!!!!!!!!!!!!!!!!", "$"
     won db "Congrats! You won the game", "$"
-    words    db "apple", 0, "mango", 0, "grape", 0, "banana", 0, "cherry", 0
-    wordPtrs dw offset words, offset words+6, offset words+12, offset words+18, offset words+25
+    ; words    db "apple", 0, "mango", 0, "grape", 0, "banana", 0, "cherry", 0
+    ; wordPtrs dw offset words, offset words+6, offset words+12, offset words+18, offset words+25
     chances db 10
     score db 0
     left db "Chances left: ", "$"
@@ -118,6 +144,11 @@ ENDM
 
     choose_difficulty db "What do you want you difficulty to be? { e(Easy)\{m(medium)\h(hard) }", "$"
     rim db "Focus! e OR m OR h", "$"
+
+    final_score db "Final Score: ", "$"
+    final_ch db "Mistakes to spare: ", "$"
+
+    fs db 0
     
     ; ASCII Art for hangman stages
     stage0 db "  +---+", 0Ah
@@ -199,7 +230,7 @@ ENDM
     display_str TIL
     display_str welcome
     cls
-    
+
     call get_string 
 
     get_len selected
@@ -210,8 +241,6 @@ ENDM
 
     mov bx, chances
     
-
-
     gameloop:
 
         try_again:
@@ -265,6 +294,8 @@ ENDM
             mov ah, 01h
             int 21h
             push ax ;Store al as is_entered returns values in it
+            ;cmp al, 'h'
+            ;je HINT -> if difficulty is e then print 'THe first letter is x' else if med then tell 
         
             call is_entered
             cmp al, 1 ;Duplicate was found
@@ -293,10 +324,21 @@ ENDM
     
             jne WRONG
     WRONG:
+        ; print_var score
+        ; I don't know why score is getting changed here. From print statements 
+        ;I identified where score reset to 0 and made sure to load it into a dl to temporary store it and later restore it
+        push dx
+        mov dl, score
         sub bx, 1 ;Mistakes
+        ; print_var score
         mov chances, bx
+        ; print_var score
+        mov score, dl
+        pop dx
         cmp bx, 0
-        je game_end ;if 0 then game over
+        jne ff
+        jmp game_end ;if 0 then game over
+        ff:
         display_str not_str
         jmp gameloop
 
@@ -306,18 +348,37 @@ ENDM
         cmp al, 0
         je game_win
         cmp bx, 0
-        je game_over_actually
+        jne tt
+        jmp game_end
         
-
+        tt:
         game_win:
+            mov   al, score   
+            mov   bl, chances   
+            mul   bl               
+            mov   bl, 2
+            div   bl               
+            cmp al, 100
+            jb keep_it
+            mov al, 99
+            keep_it:
+                mov fs, al
+
+            display_str final_score
+            print_var fs
+            
+            
             display_str exp
             display_str won
             display_str exp
+
+
             jmp game_over_actually
 
         game_end:
             display_str stage6 ; Show complete hangman
             display_str lost
+
         game_over_actually:
             mov ah, 04ch
             INT 21h
