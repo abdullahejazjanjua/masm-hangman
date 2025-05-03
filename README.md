@@ -77,7 +77,8 @@ To gain a solid grasp of MASM, try implementing the following programs step-by-s
 
 ---
 
-> ## **Disclaimer**
-> 
-> This project was created primarily for my own understanding of MASM and as part of my course work. I have shared it publicly to help others learn MASM and assembly programming.  
-> Please use this code responsibly and ethically. I am not responsible for any misuse, including academic dishonesty or plagiarism. Always follow your institution’s academic integrity policies when using or referencing this code.
+<div style="background-color: #fff3cd; border-left: 6px solid #ffeeba; padding: 10px; border-radius: 4px;">
+  <strong>Disclaimer</strong><br><br>
+  This project was created primarily for my own understanding of MASM and as part of my course work. I have shared it publicly to help others learn MASM and assembly programming.<br>
+  Please use this code responsibly and ethically. I am not responsible for any misuse, including academic dishonesty or plagiarism. Always follow your institution’s academic integrity policies when using or referencing this code.
+</div>
