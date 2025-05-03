@@ -6,6 +6,9 @@ A classic Hangman game implemented entirely in MASM assembly language, designed 
 
 ## **Why Hangman in Assembly?**
 Why not? It is a classic game that many enjoy implementing in low-level languages as a tradition. It’s a fun and rewarding challenge
+
+--- 
+
 ## **Features**
 
 - Complete Hangman game logic written in MASM for x86 DOS environments.
