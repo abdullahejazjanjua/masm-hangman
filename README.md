@@ -48,7 +48,32 @@ Why not? It is a classic game that many enjoy implementing in low-level language
 ---
 
 ## **Learning Resources**
+ - [Check out this YouTube playlist](https://www.youtube.com/watch?v=84k99MX5R28&list=PLMa5a9Dh6SlhJq4wCH_CLSdfRaAbuJTzb) for beginner-friendly tutorials.
 
-  - [Check out this YouTube playlist](https://www.youtube.com/watch?v=84k99MX5R28&list=PLMa5a9Dh6SlhJq4wCH_CLSdfRaAbuJTzb) for beginner-friendly tutorials.
+> **Tip:** Having taken a Computer Organization and Assembly Language (COAL) course or similar will significantly improve your understanding of the concepts.
+
+
+To gain a solid grasp of MASM, try implementing the following programs step-by-step:
+
+1. **Add Two Numbers**  
+   Write a program that takes two numbers as input from the user, adds them, and prints the result.
+
+2. **Sum of 10 Numbers Using a Loop**  
+   Create a program that reads 10 numbers from the user, sums them using a loop, and displays the total.
+
+3. **Use Macros and Procedures**  
+   Refactor one of the above programs to use a macro or procedure to modularize your code.
+
+4. **Sum Two Arrays**  
+   Given two arrays, compute a third array where each element is the sum of the corresponding elements in the first two arrays. Print the resulting array.
+
+5. **Random Number Generation**  
+   Implement a routine to generate a random number within a specified range.
+
+6. **Guess the Number Game**  
+   Build a simple game where the program randomly selects a number and the user tries to guess it, with feedback on each guess.
+
+> **Note:** You can check my solutions to these problems in the `\practice` directory.
 
 ---
+
