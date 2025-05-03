@@ -147,6 +147,7 @@ ENDM
 
     final_score db "Final Score: ", "$"
     final_ch db "Mistakes to spare: ", "$"
+    word_Was db "Oops! The correct word was: ", "$"
 
     fs db 0
     
@@ -294,8 +295,6 @@ ENDM
             mov ah, 01h
             int 21h
             push ax ;Store al as is_entered returns values in it
-            ;cmp al, 'h'
-            ;je HINT -> if difficulty is e then print 'THe first letter is x' else if med then tell 
         
             call is_entered
             cmp al, 1 ;Duplicate was found
@@ -327,6 +326,7 @@ ENDM
         ; print_var score
         ; I don't know why score is getting changed here. From print statements 
         ;I identified where score reset to 0 and made sure to load it into a dl to temporary store it and later restore it
+        display_str not_str
         push dx
         mov dl, score
         sub bx, 1 ;Mistakes
@@ -339,7 +339,6 @@ ENDM
         jne ff
         jmp game_end ;if 0 then game over
         ff:
-        display_str not_str
         jmp gameloop
 
     game_over:
@@ -376,8 +375,11 @@ ENDM
             jmp game_over_actually
 
         game_end:
+            cls
             display_str stage6 ; Show complete hangman
             display_str lost
+            display_str word_Was
+            display_str selected
 
         game_over_actually:
             mov ah, 04ch
