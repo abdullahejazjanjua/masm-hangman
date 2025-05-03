@@ -1,8 +1,48 @@
-# masm-hangman
+# MASM Hangman
 
-- This repository contains hangman game implemented completely in MASM in DosBox. The entire logic and game flow is written by utilizing the basic registers available.
-- The project makes use of no external library like irvine for ease of development.
+A classic Hangman game implemented entirely in MASM assembly language, designed to run in DOSBox. This project demonstrates fundamental assembly programming concepts and direct manipulation of hardware using x86 registers-without relying on external libraries like Irvine.
 
-# Helpful Resources
+---
 
-- You can refer to [here](https://www.youtube.com/watch?v=84k99MX5R28&list=PLMa5a9Dh6SlhJq4wCH_CLSdfRaAbuJTzb) to learn how to code in MASM.
+## **Features**
+
+- Complete Hangman game logic written in MASM for x86 DOS environments.
+- No external dependencies or helper libraries-pure assembly code.
+- Runs seamlessly in DOSBox, making it accessible on modern systems.
+- All input, output, and game flow handled using basic CPU registers and instructions.
+
+---
+
+## **Getting Started**
+
+**Prerequisites**
+
+- [DOSBox](https://www.dosbox.com/) (for running 16-bit DOS programs on modern OS)
+- MASM assembler (Microsoft Macro Assembler)
+- Basic understanding of assembly language and x86 architecture
+
+**Setup Instructions**
+
+1. Install DOSBox and MASM.  
+   If you need help setting up MASM in DOSBox, [this video guide](https://youtu.be/-IJA4lIeLcc?si=cP5GnxYGWFdz01oN) walks you through the process step by step.
+2. Clone or download this repository.
+3. Mount your project directory in DOSBox.
+4. Assemble and link the source code using MASM commands. 
+5. Run the executable in DOSBox and enjoy the game!
+
+---
+
+## **How to Play**
+
+- The game randomly selects a word.
+- Guess one letter at a time.
+- Each incorrect guess draws another part of the hangman.
+- Win by guessing all letters before the hangman is fully drawn.
+
+---
+
+## **Learning Resources**
+
+  - [Check out this YouTube playlist for learning MASM](https://www.youtube.com/watch?v=84k99MX5R28&list=PLMa5a9Dh6SlhJq4wCH_CLSdfRaAbuJTzb) for beginner-friendly tutorials.
+
+---
