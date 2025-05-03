@@ -28,6 +28,7 @@ A classic Hangman game implemented entirely in MASM assembly language, designed 
 2. Clone or download this repository.
 3. Mount your project directory in DOSBox.
 4. Assemble and link the source code using MASM commands. 
+    You need to have masm.exe, link.exe in your present working directory.
 5. Run the executable in DOSBox and enjoy the game!
 
 ---
@@ -43,6 +44,6 @@ A classic Hangman game implemented entirely in MASM assembly language, designed 
 
 ## **Learning Resources**
 
-  - [Check out this YouTube playlist for learning MASM](https://www.youtube.com/watch?v=84k99MX5R28&list=PLMa5a9Dh6SlhJq4wCH_CLSdfRaAbuJTzb) for beginner-friendly tutorials.
+  - [Check out this YouTube playlist](https://www.youtube.com/watch?v=84k99MX5R28&list=PLMa5a9Dh6SlhJq4wCH_CLSdfRaAbuJTzb) for beginner-friendly tutorials.
 
 ---
