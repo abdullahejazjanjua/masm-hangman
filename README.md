@@ -55,6 +55,8 @@ Why not? It is a classic game that many enjoy implementing in low-level language
 
 To gain a solid grasp of MASM, try implementing the following programs step-by-step:
 
+> **Note:** You can check my solutions to these problems in the `\practice` directory.
+
 1. **Add Two Numbers**  
    Write a program that takes two numbers as input from the user, adds them, and prints the result.
 
@@ -73,7 +75,6 @@ To gain a solid grasp of MASM, try implementing the following programs step-by-s
 6. **Guess the Number Game**  
    Build a simple game where the program randomly selects a number and the user tries to guess it, with feedback on each guess.
 
-> **Note:** You can check my solutions to these problems in the `\practice` directory.
 
 > ## **Disclaimer**
 > 
